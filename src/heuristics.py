@@ -1,71 +1,84 @@
-from __future__ import annotations
+from __future__ import annotations  # Ermöglicht Typannotationen, auch wenn Klassen später definiert werden
+from typing import Tuple  # Wird verwendet, wenn Funktionen Tupel (z. B. (x, y)) zurückgeben
 
-from typing import Tuple
-
+# Importiert wichtige Konstanten und Klassen aus dem state-Modul
+# PuzzleState = beschreibt einen bestimmten Puzzle-Zustand
+# GOAL = Zielzustand (z. B. (1,2,3,4,5,6,7,8,0))
+# GOAL_POS = Dictionary, das jedem Stein seine Zielkoordinaten zuordnet
+# INDEX_TO_RC = ordnet jedem Index (0–8) die passende (Zeile, Spalte)-Position zu
+# N = Größe des Spielfelds (beim 8-Puzzle = 3)
 from .state import PuzzleState, GOAL, GOAL_POS, INDEX_TO_RC, N
 
 
+# ------------------------ HAMMING-HEURISTIK ------------------------
 def hamming(s: PuzzleState) -> int:
     """
-    Count of tiles not in their goal positions (ignoring the blank).
-
-    Parameters
-    ----------
-    s : PuzzleState
-
-    Returns
-    -------
-    int
-        Number of misplaced tiles ∈ [0, 8].
+    Zählt, wie viele Steine sich nicht an ihrer Zielposition befinden (ohne das leere Feld).
     """
-    tiles = s.tiles
-    # Compare against GOAL; skip blank (0)
+
+    tiles = s.tiles  # Zugriff auf die aktuelle Anordnung der Steine
+
+    # Wir vergleichen jeden Stein mit seiner Position im Zielzustand
+    # enumerate() liefert Index (Position im Array) und Wert (Steinnummer)
+    # Wir zählen +1, wenn der Stein nicht an der richtigen Position ist UND nicht das leere Feld (0)
     return sum(1 for i, v in enumerate(tiles) if v != 0 and v != GOAL[i])
 
 
+# ------------------------ MANHATTAN-HEURISTIK ------------------------
 def manhattan(s: PuzzleState) -> int:
     """
-    Sum of Manhattan distances from each tile to its goal position (ignore blank).
-
-    Parameters
-    ----------
-    s : PuzzleState
-
-    Returns
-    -------
-    int
-        Manhattan distance (non-negative), equals 0 on the goal state.
+    Berechnet die Summe der Manhattan-Distanzen aller Steine zu ihren Zielpositionen (ohne das leere Feld).
     """
-    dist = 0
+
+    dist = 0  # Startwert der gesamten Distanz
+
+    # Für jedes Feld im Puzzle: Index = Position, tile = Zahl des Steins
     for idx, tile in enumerate(s.tiles):
-        if tile == 0:
+        if tile == 0:  # Leeres Feld überspringen
             continue
+
+        # Aktuelle Zeilen-/Spaltenposition berechnen
         r, c = INDEX_TO_RC[idx]
+
+        # Zielposition des Steins (gr = goal_row, gc = goal_col)
         gr, gc = GOAL_POS[tile]
+
+        # Manhattan-Distanz = horizontale + vertikale Entfernung
         dist += abs(r - gr) + abs(c - gc)
+
+    # Gesamt-Distanz zurückgeben
     return dist
 
 
-# Optional: a trivial baseline for sanity checks
+# ------------------------ ZERO-HEURISTIK (KONTROLLWERT) ------------------------
 def zero_heuristic(_: PuzzleState) -> int:
-    """Always returns 0 (equivalent to Uniform Cost Search on unit-cost edges)."""
+    """
+    Gibt immer 0 zurück.
+    Wird verwendet, um zu testen, wie der Algorithmus ohne Heuristik funktioniert
+    (entspricht Uniform Cost Search).
+    """
     return 0
 
 
-# ------------------------------- Self-test -----------------------------------
-
+# ------------------------ SELBSTTEST (nur beim direkten Ausführen) ------------------------
 if __name__ == "__main__":
+
+    # Zielzustand prüfen: Alle Steine richtig -> Hamming & Manhattan = 0
     g = PuzzleState(GOAL)
     assert hamming(g) == 0
     assert manhattan(g) == 0
 
-    # One move from goal: blank left of 8 → moving Right solves it
+    # Ein fast gelöstes Puzzle (nur eine Bewegung entfernt)
+    # Der leere Platz (0) steht links von der '8'
     near = PuzzleState((1, 2, 3, 4, 5, 6, 7, 0, 8))
-    # Tile '8' is at (2,2) in GOAL but here at (2,1): Hamming=1, Manhattan=1
+
+    # '8' ist falsch platziert -> Hamming = 1, Manhattan = 1
     assert hamming(near) == 1
     assert manhattan(near) == 1
 
-    # A slightly scrambled state (values just for a quick check)
+    # Testzustand, leicht durchmischt
     s = PuzzleState((2, 8, 3, 1, 6, 4, 7, 0, 5))
+
+    # Gibt die berechneten Heuristikwerte aus
     print("Hamming =", hamming(s))
     print("Manhattan =", manhattan(s))
