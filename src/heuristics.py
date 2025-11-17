@@ -11,10 +11,10 @@ from .state import PuzzleState, GOAL, GOAL_POS, INDEX_TO_RC, N
 
 
 # ------------------------ HAMMING-HEURISTIK ------------------------
+#Ziel:  helfen dem Suchalgorithmus abzuschätzen, wie weit ein aktueller Puzzle-Zustand noch vom Zielzustand entfernt ist.
+#Idee: man zählt, wie viele steine nciht an ihrer richtigen Position liegen
+
 def hamming(s: PuzzleState) -> int:
-    """
-    Zählt, wie viele Steine sich nicht an ihrer Zielposition befinden (ohne das leere Feld).
-    """
 
     tiles = s.tiles  # Zugriff auf die aktuelle Anordnung der Steine
 
@@ -25,10 +25,10 @@ def hamming(s: PuzzleState) -> int:
 
 
 # ------------------------ MANHATTAN-HEURISTIK ------------------------
+
+#Idee: misst, wie weit jeder Stein von seinem Platz entfernt ist.
 def manhattan(s: PuzzleState) -> int:
-    """
-    Berechnet die Summe der Manhattan-Distanzen aller Steine zu ihren Zielpositionen (ohne das leere Feld).
-    """
+   
 
     dist = 0  # Startwert der gesamten Distanz
 

@@ -8,12 +8,11 @@ import statistics as stats  # Für Mittelwert- und Standardabweichungsberechnung
 
 
 # ------------------------- DATENSTRUKTUR: SearchResult -------------------------
+#Speichert alle wichtigen Informationen eines einzelnen Suchdurchlaufs in einem klar strukturierten Objekt.
+
 @dataclass
 class SearchResult:
-    """
-    Dataklasse für die Speicherung der Ergebnisse eines einzelnen A*-Suchlaufs.
-    Wird z. B. in 'experiment.py' verwendet, um Laufzeiten und Leistungsdaten zu vergleichen.
-    """
+   
 
     solved: bool              # Gibt an, ob das Puzzle erfolgreich gelöst wurde (True/False)
     depth: int                # Tiefe der Lösung (Anzahl der Züge bis zum Ziel)
@@ -24,11 +23,10 @@ class SearchResult:
 
 
 # ------------------------- FUNKTION: time_call -------------------------
+#Misst, wie lange eine Funktion zur Ausführung braucht.
+
 def time_call(fn, *args, **kwargs) -> Tuple[float, Any]:
-    """
-    Führt eine beliebige Funktion 'fn' mit Argumenten aus
-    und gibt die vergangene Zeit + das Ergebnis zurück.
-    """
+   
     t0 = time.perf_counter()          # Startzeitpunkt hochpräzise messen
     out = fn(*args, **kwargs)         # Funktion ausführen und Ergebnis speichern
     t1 = time.perf_counter()          # Endzeitpunkt messen
@@ -36,16 +34,17 @@ def time_call(fn, *args, **kwargs) -> Tuple[float, Any]:
 
 
 # ------------------------- FUNKTION: mean_std -------------------------
+#Berechnet den Mittelwert (mean) und die Standardabweichung (std) einer Zahlenliste.
+#Wird z. B. verwendet, um mehrere Durchläufe statistisch auszuwerten.
+
+
 def mean_std(values: Iterable[float | int]) -> Tuple[float, float]:
-    """
-    Berechnet den Mittelwert und die Standardabweichung einer Zahlenliste.
-    Wenn nur ein Wert übergeben wird, ist die Standardabweichung 0.
-    """
+    
     vals = list(values)                       # Werte in eine Liste umwandeln
     if not vals:                              # Prüfen, ob Liste leer ist
         raise ValueError("mean_std() requires at least one value")
     if len(vals) == 1:                        # Nur ein Wert → keine Abweichung möglich
-        return float(vals[0]), 0.0
+        return float(vals[0]), 0.0              #std=0
     return float(stats.mean(vals)), float(stats.stdev(vals))  # Mittelwert & Standardabweichung zurückgeben
 
 
