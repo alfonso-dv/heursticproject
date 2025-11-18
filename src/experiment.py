@@ -20,7 +20,16 @@ def generate_trials(n: int, rng: random.Random) -> List[PuzzleState]:
     """
     Generate `n` solvable random start states using a provided RNG.
     """
+    # Function signature:
+    # - n: how many random start states to generate
+    # - rng: a random.Random instance (so you can control the seed for reproducibility)
+    # Returns: a list of PuzzleState objects
+
     return [random_solvable_state(rng) for _ in range(n)]
+
+    # Uses a list comprehension to call random_solvable_state(rng) n times.
+    # Each call returns a new solvable PuzzleState.
+    # The resulting list of PuzzleState objects is returned.
 
 
 # ------------------------------- Single run ----------------------------------
@@ -31,7 +40,10 @@ def run_trial(start: PuzzleState, heuristic_fn: Callable[[PuzzleState], int]):
     produced by search.a_star(). We don't depend on a specific class path;
     we only expect the result to expose attributes used by summarize()/CSV.
     """
+
     return search.a_star(start, heuristic_fn)
+    # Calls the A* search algorithm with the given start state and heuristic function.
+    # Returns whatever SearchResult-like object search.a_star produces.
 
 
 # ------------------------------ Batch runner ---------------------------------
@@ -40,18 +52,22 @@ def run_batch(trials: List[PuzzleState], heuristics: HeuristicMap):
     """
     Evaluate every heuristic on every trial. Returns a list of SearchResult objects.
     """
-    results = []
-    for start in trials:
-        for name, fn in heuristics.items():
+    results = []  # Initialize an empty list to collect all search results.
+    for start in trials: # Loop over every starting state in the list of trials.
+        for name, fn in heuristics.items(): # For each trial, loop over every (heuristic name, heuristic function) pair.
             res = run_trial(start, fn)
+            # Run A* on this (start, heuristic) combination.
+            # res is the SearchResult returned by run_trial.
+
             # Ensure the heuristic name is set (a_star already sets it from fn.__name__)
             # but we enforce the display name provided by the dict key if they differ.
             if res.heuristic.lower() != name.lower():
                 # Create a shallow patched object (res is a dataclass in search.py)
                 # Direct assignment is fine; dataclass is not frozen.
                 res.heuristic = name
-            results.append(res)
+            results.append(res) # Append this SearchResult to the overall results list.
     return results
+# Return the full list of SearchResult objects for all (trial, heuristic) pairs.
 
 
 # ------------------------------ Summarization --------------------------------
@@ -61,9 +77,13 @@ def summarize(results) -> List[Dict[str, float]]:
     Compute mean/stddev per heuristic for expanded nodes and runtime (seconds).
     Also reports mean solution depth to verify comparable difficulty.
     """
-    by_h: Dict[str, List] = {}
-    for r in results:
+    by_h: Dict[str, List] = {} # Dictionary mapping heuristic name -> list of SearchResult objects using that heuristic.
+    for r in results: 
         by_h.setdefault(r.heuristic, []).append(r)
+
+        # Ensure a list exists for the heuristic name r.heuristic in by_h.
+        # Then append this result r to that list.
+        # setdefault(k, []) returns the existing list for k, or adds and returns [] if missing.
 
     rows = []
     for hname, group in by_h.items():
