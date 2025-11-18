@@ -9,7 +9,7 @@ from typing import Iterable, List, Tuple, Dict # Import für Typangaben, damit C
 N = 3  # Wird später für Positionsberechnungen (Index → Zeile/Spalte) gebraucht
 
 # Erstellt eine Tabelle, die jeden linearen Index (0–8) in (row, col) umrechnet
-# Beispiel: Index 5 → (1,2)
+# i // N liefert die Zeile, i % N die Spalte (z. B. 5 → (1,2)); wird für Heuristiken und Moves benötigt
 INDEX_TO_RC: Tuple[Tuple[int, int], ...] = tuple((i // N, i % N) for i in range(N * N))
 
 # Zielzustand des Puzzles: 1–8 in Reihenfolge und die 0 (Leerfeld) unten rechts
@@ -17,7 +17,8 @@ INDEX_TO_RC: Tuple[Tuple[int, int], ...] = tuple((i // N, i % N) for i in range(
 GOAL: Tuple[int, ...] = (1, 2, 3, 4, 5, 6, 7, 8, 0)
 
 # Ordnet jedem Stein seine Zielposition zu (für Manhattan-Distanz wichtig)
-# Bsp: GOAL_POS[5] = (1,1), weil 5 im Ziel dort stehen muss
+# wichtig, damit Manhattan-Heuristik später schnell berechnen kann,
+# wie weit jeder Stein noch von seiner richtigen Position entfernt ist
 GOAL_POS: Dict[int, Tuple[int, int]] = {v: INDEX_TO_RC[i] for i, v in enumerate(GOAL)}
 
 
